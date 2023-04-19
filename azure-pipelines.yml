@@ -14,30 +14,48 @@ variables:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- task: Docker@2
-  displayName: Build an image
-  inputs:
-    command: build
-    dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-    repository: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
-    tags: |
-      $(IMAGE_TAG)
-- task: ECRPushImage@1
-  displayName: 'Push Image'
-  inputs:
-    awsCredentials: 'aws-fariadevops-marcio'
-    regionName: $(AWS_REGION)
-    sourceImageName: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
-    sourceImageTag: $(IMAGE_TAG)
-    repositoryName: $(PROJECT_NAME)-ecr
-    pushTag: $(IMAGE_TAG)
-- task: AWSCLI@1
-  displayName: 'Update Development ECS Fargate Service'
-  inputs:
-    awsCredentials: 'aws-fariadevops-marcio'
-    regionName: $(AWS_REGION)
-    awsCommand: ecs
-    awsSubCommand: 'update-service'
-    awsArguments: '--cluster $(PROJECT_NAME)  --service $(PROJECT_NAME)-svc --force-new-deployment'
-    failOnStandardError: false
+stages:
+- stage: Build
+  displayName: Build image
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        command: build
+        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        repository: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
+        tags: |
+          $(IMAGE_TAG)
+- stage: Push
+  displayName: Push image
+  jobs:
+  - job: Push
+    displayName: Push
+    steps:
+    - task: ECRPushImage@1
+      displayName: 'Push Image'
+      inputs:
+        awsCredentials: 'aws-fariadevops-marcio'
+        regionName: $(AWS_REGION)
+        sourceImageName: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
+        sourceImageTag: $(IMAGE_TAG)
+        repositoryName: $(PROJECT_NAME)-ecr
+        pushTag: $(IMAGE_TAG)
+- stage: Update
+  displayName: Update ECS
+  jobs:
+  - job: Update
+    displayName: Update
+    steps:
+    - task: AWSCLI@1
+      displayName: 'Update Development ECS Fargate Service'
+      inputs:
+        awsCredentials: 'aws-fariadevops-marcio'
+        regionName: $(AWS_REGION)
+        awsCommand: ecs
+        awsSubCommand: 'update-service'
+        awsArguments: '--cluster $(PROJECT_NAME)  --service $(PROJECT_NAME)-svc --force-new-deployment'
+        failOnStandardError: false
