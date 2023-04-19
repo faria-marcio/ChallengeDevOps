@@ -11,54 +11,25 @@ resources:
 variables:
   IMAGE_TAG: latest
 
-stages:
-- stage: Build
-  displayName: Build image
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-    - script: |
-        docker login -u AWS -p $(aws ecr get-login-password --region $(AWS_REGION)) $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
-      displayName: 'Login to AWS'
-      env:
-        AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-        AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+pool:
+  vmImage: ubuntu-latest
 
-    - task: Docker@2
-      displayName: Build docker image
-      inputs:
-        repository: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)
-        command: buildAndPush
-#     steps:
-#     - task: Docker@2
-#       displayName: Build an image
-#       inputs:
-#         command: build
-#         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-#         tags: |
-#           $(IMAGE_TAG)
-# - stage: Push
-#   displayName: Push image
-#   jobs:
-#   - job: Push
-#     displayName: Push
-#     pool:
-#       vmImage: ubuntu-latest
-#     steps:
-#     - task: Bash@3
-#       displayName: Push an image
-#       inputs:
-#         targetType: 'inline'
-#         script: |
-#           # Authenticate to ECR
-#           docker login -u AWS -p $(aws ecr get-login-password --region $(AWS_REGION)) $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
-
-#           # Push Docker image to ECR
-#           docker tag $(ECR_REPOSITORY_NAME):$(IMAGE_TAG) $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME):$(IMAGE_TAG)
-#           docker push $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME):$(IMAGE_TAG)
-#       env:
-#           AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-#           AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+steps:
+- task: Docker@2
+  displayName: Build an image
+  inputs:
+    command: build
+    dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+    buildContext: $(Build.SourcesDirectory)'
+    repository: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)
+    tags: |
+      $(IMAGE_TAG)
+- task: ECRPushImage@1
+  displayName: 'Push Image'
+  inputs:
+    awsCredentials: 'aws-fariadevops-marcio'
+    regionName: $(AWS_REGION)
+    sourceImageName: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)
+    sourceImageTag: $(IMAGE_TAG)
+    repositoryName: $(ECR_REPOSITORY_NAME)
+    pushTag: $(IMAGE_TAG)
