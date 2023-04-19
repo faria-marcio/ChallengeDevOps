@@ -26,8 +26,8 @@ stages:
     - task: Docker@2
       displayName: Build an image
       inputs:
-        containerRegistry: 'your-aws-container-registry-service-connection'
-        repository: '$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)'
+        # containerRegistry: 'your-aws-container-registry-service-connection'
+        # repository: '$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)'
         command: build
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
@@ -40,11 +40,15 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-    - task: Docker@2
+    - task: Bash@3
       displayName: Push an image
       inputs:
-        containerRegistry: 'your-aws-container-registry-service-connection'
-        repository: '$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)'
-        command: push
-        tags: |
-          $(IMAGE_TAG)
+        targetType: 'inline'
+        script: |
+          # Authenticate to ECR
+          AWS_ECR_LOGIN=`aws ecr get-login-password --region $(AWS_REGION)`
+          docker login -u AWS -p ${AWS_ECR_LOGIN} https://$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
+          
+          # Push Docker image to ECR
+          docker tag your-image-name:$(IMAGE_TAG) $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME):$(IMAGE_TAG)
+          docker push $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME):$(IMAGE_TAG)
