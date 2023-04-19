@@ -1,4 +1,5 @@
 FROM php:7.4-apache
+ENV PORT 80
 
 RUN a2enmod rewrite
 
@@ -18,13 +19,15 @@ RUN chmod -R 777 storage bootstrap/cache
 ADD ./docker-files/docker-entrypoint.sh /bin/docker-entrypoint.sh
 RUN chmod +x /bin/docker-entrypoint.sh
 
-ADD ./docker-files/db-migrate.sh /bin/db-migrate.sh
-RUN chmod +x /bin/db-migrate.sh
-
 COPY --from=composer:1.9.1 /usr/bin/composer /usr/bin/composer
 
 RUN composer install
 
-ENTRYPOINT ["/bin/docker-entrypoint.sh"]
-
 CMD ["apache2-foreground"]
+
+RUN php artisan key:generate
+
+RUN php artisan jwt:generate
+
+ADD ./docker-files/db-migrate.sh /bin/db-migrate.sh
+RUN chmod +x /bin/db-migrate.sh

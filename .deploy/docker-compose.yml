@@ -1,7 +1,8 @@
 version: "3.2"
 
 services:
-  laravel:
+  devops-challenge:
+    container_name: lavarel
     build: ../
     entrypoint: ""
     env_file: ../.env
@@ -9,4 +10,19 @@ services:
     volumes:
       - ../:/var/www/html
     ports:
-     - 80:80
+     - 8000:80
+    # links:
+    #  - mysql:mysql
+    # depends_on:
+    #  - mysql
+
+  # mysql:
+  #   container_name: mysql
+  #   image: mysql:latest
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: P@ssw0rd321
+  #     MYSQL_DATABASE: homestead
+  #     MYSQL_USER: homestead
+  #     MYSQL_PASSWORD: P@ssw0rd321
+  #   ports:
+  #     - 3306:3306
