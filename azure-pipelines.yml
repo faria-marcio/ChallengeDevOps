@@ -23,8 +23,8 @@ stages:
     - task: Docker@2
       displayName: Build an image
       inputs:
-        # containerRegistry: 'your-aws-container-registry-service-connection'
-        # repository: '$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)'
+        containerRegistry: 'aws-fariadevops-marcio'
+        repository: '$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)'
         command: build
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
@@ -37,14 +37,10 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-    - task: Bash@3
+    - task: Docker@2
       displayName: Push an image
       inputs:
-        targetType: 'inline'
-        script: |
-          # Authenticate to ECR
-          aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
-          
-          # Push Docker image to ECR
-          docker tag $(ECR_REPOSITORY_NAME):$(IMAGE_TAG) $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME):$(IMAGE_TAG)
-          docker push $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME):$(IMAGE_TAG)
+        containerRegistry: 'aws-fariadevops-marcio'
+        repository: '$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)'
+        command: 'push'
+        tags: '$(IMAGE_TAG)'
