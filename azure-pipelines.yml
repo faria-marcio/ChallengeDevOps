@@ -20,7 +20,7 @@ steps:
   inputs:
     command: build
     dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-    repository: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)
+    repository: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
     tags: |
       $(IMAGE_TAG)
 - task: ECRPushImage@1
@@ -28,7 +28,16 @@ steps:
   inputs:
     awsCredentials: 'aws-fariadevops-marcio'
     regionName: $(AWS_REGION)
-    sourceImageName: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)
+    sourceImageName: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
     sourceImageTag: $(IMAGE_TAG)
-    repositoryName: $(ECR_REPOSITORY_NAME)
+    repositoryName: $(PROJECT_NAME)-ecr
     pushTag: $(IMAGE_TAG)
+- task: AWSCLI@1
+  displayName: 'Update Development ECS Fargate Service'
+  inputs:
+    awsCredentials: 'aws-fariadevops-marcio'
+    regionName: $(AWS_REGION)
+    awsCommand: ecs
+    awsSubCommand: 'update-service'
+    awsArguments: '--cluster $(PROJECT_NAME)  --service $(PROJECT_NAME)-svc --force-new-deployment'
+    failOnStandardError: false
