@@ -1,0 +1,16 @@
+version: '3.8'
+  
+services:
+
+ terraform:
+    image: hashicorp/terraform
+    working_dir: /terraform
+    volumes:
+        - ./.aws/credentials:/root/.aws/ 
+        - .:/terraform
+
+ aws:
+    image: amazon/aws-cli
+    working_dir: /terraform
+    volumes:
+        - ./.aws/credentials:/root/.aws/
