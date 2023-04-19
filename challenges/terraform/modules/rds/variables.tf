@@ -1,0 +1,11 @@
+variable "project_name" {}
+variable "vpc_id" {}
+variable "vpc_cidr" {}
+variable "subnet_private_id" {}
+variable "app_sg_id" {}
+variable "db_name" {}
+variable "db_master_username" {}
+variable "db_subnet_group_name" {}
+variable "db_engine" {}
+variable "db_engine_version" {}
+variable "db_instance_class" {}
