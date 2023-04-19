@@ -23,7 +23,7 @@ stages:
     - task: Docker@2
       displayName: Build an image
       inputs:
-        containerRegistry: 'aws-fariadevops-marcio'
+        containerRegistry: 'Container Registry'
         repository: '$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(ECR_REPOSITORY_NAME)'
         command: build
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
