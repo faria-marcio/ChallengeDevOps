@@ -9,9 +9,6 @@ resources:
 - repo: self
 
 variables:
-  AWS_REGION: $(AWS_REGION)
-  AWS_ACCOUNT_ID: $(AWS_ACCOUNT_ID)
-  ECR_REPOSITORY_NAME: $(ECR_REPOSITORY_NAME)
   IMAGE_TAG: latest
 
 stages:
