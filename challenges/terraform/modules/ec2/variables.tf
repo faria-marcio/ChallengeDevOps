@@ -1,0 +1,10 @@
+variable "project_name" {}
+variable "vpc_id" {}
+variable "vpc_cidr" {}
+variable "subnet_private_id" {}
+variable "subnet_private_cidr" {}
+variable "subnet_public_id" {}
+variable "subnet_public_cidr" {}
+variable "cidr_block_all" {}
+variable "ami" {}
+variable "instance_type" {}
