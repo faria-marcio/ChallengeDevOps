@@ -1,0 +1,17 @@
+{
+    "Statement": [
+        {
+            "Action": [
+                "logs:PutLogEvents",
+                "logs:CreateLogStream",
+                "logs:PutRetentionPolicy",
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents",
+                "cloudwatch:GetMetricStatistics"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ],
+    "Version": "2012-10-17"
+}
