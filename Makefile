@@ -7,21 +7,22 @@ export CONTAINER_PORT=80
 export MEMORY?=1024
 BUILD_VERSION?=latest
 
-export IMAGE_NAME=$(ECR_ACCOUNT).dkr.ecr.$(AWS_DEFAULT_REGION).amazonaws.com/${APP_NAME}:${BUILD_VERSION}
+# export IMAGE_NAME=$(ECR_ACCOUNT).dkr.ecr.$(AWS_DEFAULT_REGION).amazonaws.com/${APP_NAME}:${BUILD_VERSION}
+export IMAGE_NAME=devops-challenge
 
 dockerBuild:
 	@echo "make dockerBuild"
-	docker build  --no-cache -t ${IMAGE_NAME} .
+	docker build --no-cache -t ${IMAGE_NAME} .
 .PHONY: dockerBuild
 
 app-run:
 	echo "--- running app"
-	docker-compose -f $(PATH_DEPLOY)/docker-compose.yml run --rm ${APP_NAME}
+	docker compose -f $(PATH_DEPLOY)/docker-compose.yml run --rm ${APP_NAME}
 .PHONY: app-run
 
 app-start:
 	@echo "Starting application..."
-	docker-compose -f .deploy/docker-compose.yml up laravel
+	docker compose -f .deploy/docker-compose.yml up $(IMAGE_NAME)
 .PHONY: app-start
 
 run:
