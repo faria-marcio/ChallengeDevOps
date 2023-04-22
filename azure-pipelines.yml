@@ -55,14 +55,14 @@ stages:
             inputs:
               provider: 'aws'
               command: 'plan'
-              customCommand: '-var-file="dev.tfvars"'
+              commandOptions: '-var-file="dev.tfvars"'
               environmentServiceNameAWS: 'aws-fariadevops-marcio'
           - task: TerraformTaskV4@4
             displayName: 'Terraform apply'
             inputs:
               provider: 'aws'
               command: 'apply'
-              customCommand: '-var-file="dev.tfvars"'
+              commandOptions: '-var-file="dev.tfvars"'
               environmentServiceNameAWS: 'aws-fariadevops-marcio'
   - stage: appdeploy
     condition: succeeded('tfdeploy')
