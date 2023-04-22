@@ -14,7 +14,7 @@ pool:
   vmImage: ubuntu-latest
 
 stages:
-  - stage: Terraform validate
+  - stage: terraform-validate
     jobs: 
       - job: Validate
         continueOnError: false
@@ -34,9 +34,9 @@ stages:
             inputs:
               provider: 'aws'
               command: 'validate'
-  - stage: Terraform deploy
-    condition: succeeded('Terraform validate')
-    dependsOn: Terraform validate
+  - stage: terraform-deploy
+    condition: succeeded('terraform-validate')
+    dependsOn: terraform-validate
     jobs: 
       - job: Apply
         steps:
@@ -65,8 +65,8 @@ stages:
               customCommand: '-var-file="dev.tfvars"'
               environmentServiceNameAWS: 'aws-fariadevops-marcio'
   - stage: Deploy app
-    condition: succeeded('Terraform deploy')
-    dependsOn: Terraform deploy
+    condition: succeeded(terraform-deploy')
+    dependsOn: terraform-deploy
     jobs: 
       - job: Deploy
         continueOnError: false
