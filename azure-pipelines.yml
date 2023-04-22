@@ -65,7 +65,7 @@ stages:
               customCommand: '-var-file="dev.tfvars"'
               environmentServiceNameAWS: 'aws-fariadevops-marcio'
   - stage: appdeploy
-    condition: succeeded(tfdeploy')
+    condition: succeeded('tfdeploy')
     dependsOn: tfdeploy
     jobs: 
       - job: Deploy
