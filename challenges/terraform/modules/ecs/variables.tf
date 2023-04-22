@@ -16,6 +16,10 @@ variable "desired_count" {}
 variable "capacity_provider" {}
 variable "operating_system_family" {}
 variable "cpu_architecture" {}
+variable "db_name" {}
+variable "db_master_username" {}
+variable "db_password" {}
+variable "db_host" {}
 variable "containers" {
   type = list(object({
     name               = string

@@ -58,7 +58,7 @@ module "ecs" {
   rds_security_group_id     = module.rds.rds_security_group_id
   ssl_policy                = "ELBSecurityPolicy-2016-08"
   # certificate_arn           = "arn:aws:acm:${local.region}:${local.account_id}:certificate/592f3bcb-aad6-47ab-8bd2-8a386427bf6a"
-  # route53_zone_id           = "Z2CM8OFXPVFSYQ" # konduko.com
+  # route53_zone_id           = "Z2CM8OFXPVFSYQ"
   # route53_record_names      = [ local.api, local.auth ]
   task_execution_policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
   task_policies_arn = [
@@ -71,6 +71,10 @@ module "ecs" {
   capacity_provider       = "FARGATE"
   operating_system_family = "LINUX"
   cpu_architecture        = "X86_64"
+  db_name                 = var.db_name
+  db_master_username      = var.db_master_username
+  db_password             = module.rds.rds_db_password
+  db_host                 = module.rds.rds_db_host
   containers = [
     {
       name               = "laravel"

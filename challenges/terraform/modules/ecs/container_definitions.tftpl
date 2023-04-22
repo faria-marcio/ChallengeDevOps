@@ -10,6 +10,36 @@
                 "protocol": "tcp"
             }
         ],
+        "environment": [
+                {
+                    "name": "DB_USERNAME",
+                    "value": "${db_username}"
+                },
+                {
+                    "name": "APP_NAME",
+                    "value": "${app_name}"
+                },
+                {
+                    "name": "DB_CONNECTION",
+                    "value": "${db_connection}"
+                },
+                {
+                    "name": "APP_URL",
+                    "value": "${app_url}"
+                },
+                {
+                    "name": "DB_HOST",
+                    "value": "${db_host}"
+                },
+                {
+                    "name": "DB_DATABASE",
+                    "value": "${db_database}"
+                },
+                {
+                    "name": "DB_PASSWORD",
+                    "value": "${db_password}"
+                }
+            ],
         "logConfiguration": {
             "logDriver": "awslogs",
             "options": {

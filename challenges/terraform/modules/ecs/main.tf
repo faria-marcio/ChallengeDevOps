@@ -76,6 +76,13 @@ resource "aws_ecs_task_definition" "task_definition" {
   container_definitions = templatefile(
     "${path.module}/container_definitions.tftpl",
     {
+      db_username   = var.db_master_username
+      app_name      = "Laravel"
+      db_connection = "mysql"
+      app_url       = "http://localhost"
+      db_host       = var.db_host
+      db_database   = var.db_name
+      db_password   = var.db_password
       containers    = var.containers
       cw_log_groups = aws_cloudwatch_log_group.main[*].name,
       cw_log_stream = "${var.project_name}"

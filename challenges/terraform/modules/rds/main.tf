@@ -25,11 +25,11 @@ resource "aws_db_subnet_group" "main" {
 }
 
 ## Password
-# resource "random_password" "pw" {
-#   length  = 8
-#   upper   = true
-#   special = false
-# }
+resource "random_password" "pw" {
+  length  = 8
+  upper   = true
+  special = false
+}
 
 ## SSM Parameters
 resource "aws_ssm_parameter" "db_host" {
@@ -48,7 +48,7 @@ resource "aws_ssm_parameter" "db_password" {
   name        = "/rds/DB_PASSWORD"
   description = "The password parameter to be used by the container"
   type        = "SecureString"
-  value       = "8rQC4Tv2" # random_password.pw.result
+  value       = random_password.pw.result
 }
 resource "aws_ssm_parameter" "db_name" {
   name        = "/rds/DB_NAME"
@@ -66,7 +66,7 @@ resource "aws_db_instance" "rds_instance" {
   allocated_storage           = 5
   db_name                     = var.db_name
   username                    = var.db_master_username
-  password                    = "8rQC4Tv2" # random_password.pw.result
+  password                    = random_password.pw.result
   db_subnet_group_name        = aws_db_subnet_group.main.name
   vpc_security_group_ids      = [aws_security_group.main.id]
   allow_major_version_upgrade = true
