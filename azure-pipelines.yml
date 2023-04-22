@@ -15,6 +15,23 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+- task: TerraformInstaller@0
+  displayName: 'Install Terraform'
+  inputs:
+    terraformVersion: '4.30.0'
+
+- task: TerraformCLI@0
+  displayName: 'Terraform init'
+  inputs:
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/challenges/terraform'
+
+- task: TerraformCLI@0
+  displayName: 'Terraform apply'
+  inputs:
+    command: 'apply'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/challenges/terraform'
+    environmentServiceName: 'aws-fariadevops-marcio'
 - task: Docker@2
   displayName: Build an image
   inputs:
