@@ -1,11 +1,10 @@
-version: 2
+version: 2.1
 
 orbs:
   aws-ecr: circleci/aws-ecr@8.2.1
 
 jobs:
   plan-apply:
-    name: Plan IaC - Terraform
     working_directory: /tmp/project
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
@@ -22,7 +21,6 @@ jobs:
           paths:
             - .
   apply:
-    name: Apply IaC - Terraform
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
@@ -38,7 +36,6 @@ jobs:
           paths:
             - .
   plan-destroy:
-    name: Plan Destroy IaC - Terraform
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
@@ -54,7 +51,6 @@ jobs:
           paths:
             - .
   destroy:
-    name: Apply Destroy IaC - Terraform
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
@@ -66,20 +62,7 @@ jobs:
             cd challenges/terraform/
             terraform apply -auto-approve tfdestroy
   
-  aws-ecr/build-and-push-image:
-    registry-id: AWS_ECR_REGISTRY_ID
-    aws-access-key-id: AWS_ACCESS_KEY_ID
-    aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-    region: AWS_REGION
-    dockerfile: Dockerfile
-    path: .
-    repo: dnx-devops-challenge-dev-ecr
-    tag: latest
-    requires:
-      - apply
-
   update-ecs-service:
-    name: Update ECS Service to Use the New ECR Image
     docker:
       - image: amazon/aws-cli:2.11.15
     steps:
@@ -89,7 +72,6 @@ jobs:
             aws ecs update-service --region ap-southeast-2 --cluster dnx-devops-challenge-dev --service dnx-devops-challenge-dev-svc --force-new-deployment
 
 workflows:
-  version: 2
   plan_approve_apply:
     jobs:
       - plan-apply
@@ -101,6 +83,14 @@ workflows:
           requires:
             - hold-apply
       - aws-ecr/build-and-push-image:
+          registry-id: AWS_ECR_REGISTRY_ID
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          region: AWS_REGION
+          dockerfile: Dockerfile
+          path: .
+          repo: dnx-devops-challenge-dev-ecr
+          tag: latest
           requires:
             - apply
       - update-ecs-service:
