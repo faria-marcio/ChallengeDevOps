@@ -86,7 +86,7 @@ workflows:
           registry-id: AWS_ECR_REGISTRY_ID
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          region: AWS_REGION
+          region: ap-southeast-2
           dockerfile: Dockerfile
           path: .
           repo: dnx-devops-challenge-dev-ecr
