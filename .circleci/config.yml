@@ -73,7 +73,7 @@ jobs:
       - run:
           name: Build and Push Docker image to ECR
           command: |
-            eval $(aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin 424799051553.dkr.ecr.ap-southeast-2.amazonaws.com)
+            docker login -u AWS -p $(aws ecr get-login-password --region ap-southeast-2) 424799051553.dkr.ecr.ap-southeast-2.amazonaws.com
             docker build -t dnx-devops-challenge-dev-ecr .
             docker tag dnx-devops-challenge-dev-ecr:latest 424799051553.dkr.ecr.ap-southeast-2.amazonaws.com/dnx-devops-challenge-dev-ecr:latest
             docker push 424799051553.dkr.ecr.ap-southeast-2.amazonaws.com/dnx-devops-challenge-dev-ecr:latest
@@ -86,7 +86,7 @@ jobs:
       - run:
           name: Update ECS Fargate service
           command: |
-            aws ecs update-service --cluster my-cluster --service my-service --force-new-deployment
+            aws ecs update-service --region ap-southeast-2 --cluster dnx-devops-challenge-dev --service dnx-devops-challenge-dev-svc --force-new-deployment
 
 workflows:
   version: 2
