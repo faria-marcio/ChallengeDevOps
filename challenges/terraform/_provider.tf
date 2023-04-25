@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
     bucket = "dnx-labs"
-    key = "terraform-state/terraform.tfstate"
-    region  = "ap-southeast-2"
+    key    = "terraform-state/terraform.tfstate"
+    region = "ap-southeast-2"
   }
   required_providers {
     aws = {
@@ -13,5 +13,5 @@ terraform {
 }
 
 provider "aws" {
-  region  = "ap-southeast-2"
+  region = "ap-southeast-2"
 }

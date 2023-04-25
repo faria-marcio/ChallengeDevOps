@@ -2,7 +2,8 @@
 # Build a Docker image
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-trigger: none
+trigger:
+- main
 
 resources:
 - repo: self
@@ -13,87 +14,30 @@ variables:
 pool:
   vmImage: ubuntu-latest
 
-stages:
-  - stage: tfvalidate
-    jobs: 
-      - job: Validate
-        continueOnError: false
-        steps:
-          - task: TerraformInstaller@0
-            displayName: 'Install Terraform'
-            inputs:
-              terraformVersion: '4.30.0'
-          - task: TerraformTaskV4@4
-            displayName: 'Terraform init'
-            inputs:
-              provider: 'aws'
-              command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/challenges/terraform'
-          - task: TerraformTaskV4@4
-            displayName: 'Terraform validate'
-            inputs:
-              provider: 'aws'
-              command: 'validate'
-  - stage: tfdeploy
-    condition: succeeded('tfvalidate')
-    dependsOn: tfvalidate
-    jobs: 
-      - job: Apply
-        steps:
-          - task: TerraformInstaller@0
-            displayName: 'Install Terraform'
-            inputs:
-              terraformVersion: '4.30.0'
-          - task: TerraformTaskV4@4
-            displayName: 'Terraform init'
-            inputs:
-              provider: 'aws'
-              command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/challenges/terraform'
-          - task: TerraformTaskV4@4
-            displayName: 'Terraform plan'
-            inputs:
-              provider: 'aws'
-              command: 'plan'
-              commandOptions: '-var-file="dev.tfvars"'
-              environmentServiceNameAWS: 'aws-fariadevops-marcio'
-          - task: TerraformTaskV4@4
-            displayName: 'Terraform apply'
-            inputs:
-              provider: 'aws'
-              command: 'apply'
-              commandOptions: '-var-file="dev.tfvars"'
-              environmentServiceNameAWS: 'aws-fariadevops-marcio'
-  - stage: appdeploy
-    condition: succeeded('tfdeploy')
-    dependsOn: tfdeploy
-    jobs: 
-      - job: Deploy
-        continueOnError: false
-        steps:
-        - task: Docker@2
-          displayName: Build an image
-          inputs:
-            command: build
-            dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-            repository: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
-            tags: |
-              $(IMAGE_TAG)
-        - task: ECRPushImage@1
-          displayName: 'Push Image'
-          inputs:
-            awsCredentials: 'aws-fariadevops-marcio'
-            regionName: $(AWS_REGION)
-            sourceImageName: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
-            sourceImageTag: $(IMAGE_TAG)
-            repositoryName: $(PROJECT_NAME)-ecr
-            pushTag: $(IMAGE_TAG)
-        - task: AWSCLI@1
-          displayName: 'Update Development ECS Fargate Service'
-          inputs:
-            awsCredentials: 'aws-fariadevops-marcio'
-            regionName: $(AWS_REGION)
-            awsCommand: ecs
-            awsSubCommand: 'update-service'
-            awsArguments: '--cluster $(PROJECT_NAME)  --service $(PROJECT_NAME)-svc --force-new-deployment'
-            failOnStandardError: false
+steps:
+- task: Docker@2
+  displayName: Build an image
+  inputs:
+    command: build
+    dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+    repository: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
+    tags: |
+      $(IMAGE_TAG)
+- task: ECRPushImage@1
+  displayName: 'Push Image'
+  inputs:
+    awsCredentials: 'aws-fariadevops-marcio'
+    regionName: $(AWS_REGION)
+    sourceImageName: $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(PROJECT_NAME)-ecr
+    sourceImageTag: $(IMAGE_TAG)
+    repositoryName: $(PROJECT_NAME)-ecr
+    pushTag: $(IMAGE_TAG)
+- task: AWSCLI@1
+  displayName: 'Update Development ECS Fargate Service'
+  inputs:
+    awsCredentials: 'aws-fariadevops-marcio'
+    regionName: $(AWS_REGION)
+    awsCommand: ecs
+    awsSubCommand: 'update-service'
+    awsArguments: '--cluster $(PROJECT_NAME) --service $(PROJECT_NAME)-svc --force-new-deployment'
+    failOnStandardError: false
