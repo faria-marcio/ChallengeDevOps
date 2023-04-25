@@ -70,10 +70,10 @@ jobs:
       - aws-cli/setup:
           aws-region: AWS_REGION
           session-duration: '3600'
-      - aws-ecs/update-service:
-          cluster: ${PROJECT_NAME}
-          family: ${PROJECT_NAME}-svc
-          force-new-deployment: true
+      - run:
+          name: Update ECS Fargate service
+          command: |
+            aws ecs update-service --cluster ${PROJECT_NAME} --service ${PROJECT_NAME}-svc --force-new-deployment
   
 workflows:
   plan_approve_apply:
@@ -87,14 +87,8 @@ workflows:
           requires:
             - hold-apply
       - aws-ecr/build-and-push-image:
-          registry-id: AWS_ECR_REGISTRY_ID
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          region: ${AWS_REGION}
-          dockerfile: Dockerfile
           path: .
           repo: ${PROJECT_NAME}-ecr
-          tag: latest
           requires:
             - apply
       - update-cluster:
