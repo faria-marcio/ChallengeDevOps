@@ -27,6 +27,7 @@ jobs:
       - run:
           name: terraform
           command: |
+            cd challenges/terraform/
             terraform apply -auto-approve tfapply
       - persist_to_workspace:
           root: .
@@ -58,6 +59,7 @@ jobs:
       - run:
           name: terraform destroy
           command: |
+            cd challenges/terraform/
             terraform apply -auto-approve tfdestroy
 workflows:
   version: 2
