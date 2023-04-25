@@ -1,6 +1,7 @@
 variable "project_name" {}
 variable "vpc_id" {}
-variable "default_subnets" {}
+variable "subnet_private_id" {}
+variable "subnet_public_id" {}
 variable "cw_logs_retention_in_days" {}
 variable "rds_security_group_id" {}
 variable "ssl_policy" {}

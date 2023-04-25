@@ -44,17 +44,20 @@ resource "aws_ssm_parameter" "db_user" {
   type        = "SecureString"
   value       = var.db_master_username
 }
-resource "aws_ssm_parameter" "db_password" {
-  name        = "/rds/DB_PASSWORD"
-  description = "The password parameter to be used by the container"
-  type        = "SecureString"
-  value       = random_password.pw.result
-}
 resource "aws_ssm_parameter" "db_name" {
   name        = "/rds/DB_NAME"
   description = "The name parameter to be used by the container"
   type        = "SecureString"
   value       = var.db_name
+}
+
+## Secrets Manager
+resource "aws_secretsmanager_secret" "db_password_secret" {
+  name = "/rds/DB_PASSWORD"
+}
+resource "aws_secretsmanager_secret_version" "db_password" {
+  secret_id     = aws_secretsmanager_secret.db_password_secret.id
+  secret_string = random_password.pw.result
 }
 
 ## Instance

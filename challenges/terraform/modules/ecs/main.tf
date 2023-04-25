@@ -146,7 +146,7 @@ resource "aws_alb" "fargate_cluster_application_load_balancer" {
   name               = "${var.project_name}-alb"
   load_balancer_type = "application"
   security_groups    = [aws_security_group.fargate_cluster_application_load_balancer_security_group.id]
-  subnets            = var.default_subnets
+  subnets            = var.subnet_public_id
 }
 
 ## Target Group
@@ -193,7 +193,7 @@ resource "aws_ecs_service" "fargate_cluster_service" {
   desired_count   = var.desired_count
   launch_type     = local.fargate
   network_configuration {
-    subnets          = var.default_subnets
+    subnets          = var.subnet_private_id
     security_groups  = [aws_security_group.fargate_cluster_service_security_group.id]
     assign_public_ip = true
   }
