@@ -67,15 +67,6 @@ jobs:
     docker:
       - image: cimg/python:3.10
     steps:
-      - aws-ecr/build-and-push-image:
-          registry-id: AWS_ECR_REGISTRY_ID
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          region: ${AWS_REGION}
-          dockerfile: Dockerfile
-          path: .
-          repo: ${PROJECT_NAME}-ecr
-          tag: latest
       - aws-cli/setup:
           aws-region: AWS_REGION
           session-duration: '3600'
@@ -95,9 +86,20 @@ workflows:
       - apply:
           requires:
             - hold-apply
-      - update-cluster:
+      - aws-ecr/build-and-push-image:
+          registry-id: AWS_ECR_REGISTRY_ID
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          region: ${AWS_REGION}
+          dockerfile: Dockerfile
+          path: .
+          repo: ${PROJECT_NAME}-ecr
+          tag: latest
           requires:
             - apply
+      - update-cluster:
+          requires:
+            - aws-ecr/build-and-push-image
       - plan-destroy:
           requires:
             - apply
