@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+
+orbs:
+  aws-ecr: circleci/aws-ecr@8.2.1
 
 jobs:
   plan-apply:
@@ -63,21 +66,6 @@ jobs:
             cd challenges/terraform/
             terraform apply -auto-approve tfdestroy
   
-  build-and-push-image:
-    name: Build & Push Image to ECR
-    docker:
-      - image: docker:23.0.4
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Build and Push Docker image to ECR
-          command: |
-            docker login -u AWS -p $(aws ecr get-login-password --region ap-southeast-2) 424799051553.dkr.ecr.ap-southeast-2.amazonaws.com
-            docker build -t dnx-devops-challenge-dev-ecr .
-            docker tag dnx-devops-challenge-dev-ecr:latest 424799051553.dkr.ecr.ap-southeast-2.amazonaws.com/dnx-devops-challenge-dev-ecr:latest
-            docker push 424799051553.dkr.ecr.ap-southeast-2.amazonaws.com/dnx-devops-challenge-dev-ecr:latest
-
   update-ecs-service:
     name: Update ECS Service to Use the New ECR Image
     docker:
@@ -100,12 +88,20 @@ workflows:
       - apply:
           requires:
             - hold-apply
-      - build-and-push-image:
+      - aws-ecr/build-and-push-image:
+          registry-id: AWS_ECR_REGISTRY_ID
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          region: AWS_REGION
+          dockerfile: Dockerfile
+          path: .
+          repo: dnx-devops-challenge-dev-ecr
+          tag: latest
           requires:
             - apply
       - update-ecs-service:
           requires:
-            - apply
+            - aws-ecr/build-and-push-image
       - plan-destroy:
           requires:
             - apply
