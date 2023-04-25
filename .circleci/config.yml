@@ -1,7 +1,4 @@
-version: 2.1
-
-orbs:
-  aws-ecr: circleci/aws-ecr@8.2.1
+version: 2
 
 jobs:
   plan-apply:
@@ -66,6 +63,20 @@ jobs:
             cd challenges/terraform/
             terraform apply -auto-approve tfdestroy
   
+  build-and-push-image:
+    name: Build & Push Image to ECR
+    aws-ecr/build-and-push-image:
+      registry-id: AWS_ECR_REGISTRY_ID
+      aws-access-key-id: AWS_ACCESS_KEY_ID
+      aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      region: AWS_REGION
+      dockerfile: Dockerfile
+      path: .
+      repo: dnx-devops-challenge-dev-ecr
+      tag: latest
+      requires:
+        - apply
+
   update-ecs-service:
     name: Update ECS Service to Use the New ECR Image
     docker:
@@ -77,6 +88,7 @@ jobs:
             aws ecs update-service --region ap-southeast-2 --cluster dnx-devops-challenge-dev --service dnx-devops-challenge-dev-svc --force-new-deployment
 
 workflows:
+  version: 2
   plan_approve_apply:
     jobs:
       - plan-apply
@@ -87,20 +99,12 @@ workflows:
       - apply:
           requires:
             - hold-apply
-      - aws-ecr/build-and-push-image:
-          registry-id: AWS_ECR_REGISTRY_ID
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          region: AWS_REGION
-          dockerfile: Dockerfile
-          path: .
-          repo: dnx-devops-challenge-dev-ecr
-          tag: latest
+      - build-and-push-image:
           requires:
             - apply
       - update-ecs-service:
           requires:
-            - aws-ecr/build-and-push-image
+            - build-and-push-image
       - plan-destroy:
           requires:
             - apply
