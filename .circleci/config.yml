@@ -1,7 +1,9 @@
 version: 2.1
 
 orbs:
+  aws-cli: circleci/aws-cli@3.1
   aws-ecr: circleci/aws-ecr@8.2.1
+  aws-ecs: circleci/aws-ecs@3.2.0
 
 jobs:
   plan-apply:
@@ -61,16 +63,27 @@ jobs:
           command: |
             cd challenges/terraform/
             terraform apply -auto-approve tfdestroy
-  
-  update-ecs-service:
+  update-cluster:
     docker:
-      - image: amazon/aws-cli:2.11.15
+      - image: cimg/python:3.10
     steps:
-      - run:
-          name: Update ECS Fargate service
-          command: |
-            aws ecs update-service --region ap-southeast-2 --cluster dnx-devops-challenge-dev --service dnx-devops-challenge-dev-svc --force-new-deployment
-
+      - aws-ecr/build-and-push-image:
+          registry-id: AWS_ECR_REGISTRY_ID
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          region: AWS_REGION
+          dockerfile: Dockerfile
+          path: .
+          repo: dnx-devops-challenge-dev-ecr
+          tag: latest
+      - aws-cli/setup:
+          aws-region: AWS_REGION
+          session-duration: '3600'
+      - aws-ecs/update-service:
+          cluster: dnx-devops-challenge-dev
+          family: dnx-devops-challenge-dev-svc
+          force-new-deployment: true
+  
 workflows:
   plan_approve_apply:
     jobs:
@@ -82,20 +95,9 @@ workflows:
       - apply:
           requires:
             - hold-apply
-      - aws-ecr/build-and-push-image:
-          registry-id: AWS_ECR_REGISTRY_ID
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          region: ap-southeast-2
-          dockerfile: Dockerfile
-          path: .
-          repo: dnx-devops-challenge-dev-ecr
-          tag: latest
+      - update-cluster:
           requires:
             - apply
-      - update-ecs-service:
-          requires:
-            - aws-ecr/build-and-push-image
       - plan-destroy:
           requires:
             - apply
