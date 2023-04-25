@@ -2,7 +2,7 @@ version: 2
 
 jobs:
   plan-apply:
-    working_directory: /tmp/project/challenges/terraform
+    working_directory: /tmp/project
     docker:
       - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
     steps:
@@ -10,6 +10,7 @@ jobs:
       - run:
           name: terraform init & plan
           command: |
+            cd challenges/terraform/
             terraform init -input=false
             terraform plan -out tfapply -var-file dev.tfvars
       - persist_to_workspace:
