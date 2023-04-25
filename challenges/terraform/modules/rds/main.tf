@@ -33,19 +33,19 @@ resource "random_password" "pw" {
 
 ## SSM Parameters
 resource "aws_ssm_parameter" "db_host" {
-  name        = "/rds/DB_HOST"
+  name        = "Development.RDS.DB_HOST"
   description = "The host parameter to be used by the container"
   type        = "SecureString"
   value       = aws_db_instance.rds_instance.endpoint
 }
 resource "aws_ssm_parameter" "db_user" {
-  name        = "/rds/DB_USER"
+  name        = "Development.RDS.DB_USER"
   description = "The user parameter to be used by the container"
   type        = "SecureString"
   value       = var.db_master_username
 }
 resource "aws_ssm_parameter" "db_name" {
-  name        = "/rds/DB_NAME"
+  name        = "Development.RDS.DB_NAME"
   description = "The name parameter to be used by the container"
   type        = "SecureString"
   value       = var.db_name
@@ -53,7 +53,8 @@ resource "aws_ssm_parameter" "db_name" {
 
 ## Secrets Manager
 resource "aws_secretsmanager_secret" "db_password_secret" {
-  name = "/rds/DB_PASSWORD"
+  name                    = "Development.RDS.DB_PASSWORD"
+  recovery_window_in_days = 0
 }
 resource "aws_secretsmanager_secret_version" "db_password" {
   secret_id     = aws_secretsmanager_secret.db_password_secret.id
