@@ -77,7 +77,6 @@ jobs:
             aws ecs update-service --region ap-southeast-2 --cluster dnx-devops-challenge-dev --service dnx-devops-challenge-dev-svc --force-new-deployment
 
 workflows:
-  version: 2
   plan_approve_apply:
     jobs:
       - plan-apply
