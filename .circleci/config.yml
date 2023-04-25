@@ -42,6 +42,7 @@ jobs:
       - run:
           name: terraform create destroy plan
           command: |
+            cd challenges/terraform/
             terraform plan -destroy -out tfdestroy -var-file dev.tfvars
       - persist_to_workspace:
           root: .

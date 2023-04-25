@@ -53,7 +53,8 @@ module "ecs" {
   source                    = "./modules/ecs"
   project_name              = var.project_name
   vpc_id                    = module.vpc.vpc_id
-  default_subnets           = module.vpc.subnet_public_id
+  subnet_private_id         = module.vpc.subnet_private_id
+  subnet_public_id          = module.vpc.subnet_public_id
   cw_logs_retention_in_days = 30
   rds_security_group_id     = module.rds.rds_security_group_id
   ssl_policy                = "ELBSecurityPolicy-2016-08"
