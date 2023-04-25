@@ -71,17 +71,17 @@ jobs:
           registry-id: AWS_ECR_REGISTRY_ID
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          region: AWS_REGION
+          region: ${AWS_REGION}
           dockerfile: Dockerfile
           path: .
-          repo: dnx-devops-challenge-dev-ecr
+          repo: ${PROJECT_NAME}-ecr
           tag: latest
       - aws-cli/setup:
           aws-region: AWS_REGION
           session-duration: '3600'
       - aws-ecs/update-service:
-          cluster: dnx-devops-challenge-dev
-          family: dnx-devops-challenge-dev-svc
+          cluster: ${PROJECT_NAME}
+          family: ${PROJECT_NAME}-svc
           force-new-deployment: true
   
 workflows:
