@@ -96,7 +96,7 @@ workflows:
             - aws-ecr/build-and-push-image
       - plan-destroy:
           requires:
-            - apply
+            - update-cluster
       - hold-destroy:
           type: approval
           requires:
