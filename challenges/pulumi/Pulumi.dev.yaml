@@ -1,0 +1,6 @@
+config:
+  ChallengeDevOps:containerPort: "80"
+  ChallengeDevOps:cpu: "512"
+  ChallengeDevOps:memory: "128"
+  ChallengeDevOps:path: ../../
+  aws:region: ap-southeast-2
